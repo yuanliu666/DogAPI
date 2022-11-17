@@ -6,13 +6,18 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import com.liu966.dogapi.compose.NetworkImage
+import com.liu966.dogapi.data.APIClient
+import com.liu966.dogapi.data.DogAPI
 import com.liu966.dogapi.ui.theme.DogAPITheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+
+    private val dogApi = APIClient.getClient().create(DogAPI::class.java)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -22,22 +27,21 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting("Android")
+                    RandomDogImage()
                 }
             }
         }
     }
-}
 
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    DogAPITheme {
-        Greeting("Android")
+    @Composable
+    fun RandomDogImage() {
+        val coroutineScope = rememberCoroutineScope()
+        val url = remember { mutableStateOf("") }
+        LaunchedEffect(key1 = Unit) {
+            coroutineScope.launch {
+                url.value = dogApi.getRandomSingleDogImage().body()?.message ?: ""
+            }
+        }
+        NetworkImage(url = url.value, modifier = Modifier.fillMaxSize())
     }
 }
