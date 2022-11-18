@@ -19,17 +19,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.liu966.dogapi.compose.NetworkImage
-import com.liu966.dogapi.data.APIClient
 import com.liu966.dogapi.data.DogAPI
 import com.liu966.dogapi.ui.theme.DogAPITheme
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
+import retrofit2.Retrofit
+import retrofit2.create
 
 class MainActivity : ComponentActivity() {
 
-    private val dogApi = APIClient.getClient().create(DogAPI::class.java)
+    private val client: Retrofit by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val dogApi = client.create<DogAPI>()
         setContent {
             DogAPITheme {
                 // A surface container using the 'background' color from the theme
@@ -46,11 +49,13 @@ class MainActivity : ComponentActivity() {
                     }
                     Box(modifier = Modifier.fillMaxSize()) {
                         NetworkImage(url = url.value, modifier = Modifier.fillMaxSize())
-                        Button(onClick = {
-                            coroutineScope.launch {
-                                url.value = dogApi.getRandomSingleDogImage().body()?.message ?: ""
-                            }
-                        },
+                        Button(
+                            onClick = {
+                                coroutineScope.launch {
+                                    url.value =
+                                        dogApi.getRandomSingleDogImage().body()?.message ?: ""
+                                }
+                            },
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
                                 .padding(bottom = 16.dp)
