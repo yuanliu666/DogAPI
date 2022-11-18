@@ -60,7 +60,7 @@ class MainActivity : ComponentActivity() {
                                 .align(Alignment.BottomCenter)
                                 .padding(bottom = 16.dp)
                         ) {
-                            Text(text = "Refresh", color = Color.White)
+                            Text(text = getString(R.string.refresh), color = Color.White)
                         }
                     }
                 }
